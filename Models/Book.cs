@@ -9,11 +9,11 @@ namespace LibraryApp.Models
     internal class Book
     {
         public string Name { get; set; }
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
-        public Book(int id, string name)
+        public Book(string name)
         {
-            Id = id;
+            Id = Guid.NewGuid();
             Name = name;
         }
     }
