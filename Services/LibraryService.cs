@@ -28,6 +28,7 @@ namespace LibraryApp.Services
                 return;
             }
 
+            book.ReadingProgress = CalculateReadingProgress(book.NumberOfPages, book.CurrentPage);
             Books.Add(book);
             FileService.SaveToFile(Books);
         }
@@ -55,6 +56,36 @@ namespace LibraryApp.Services
         private List<Book> LoadBooksFromFile()
         {
             return FileService.LoadFromFile<Book>();
+        }
+
+        private decimal CalculateReadingProgress(int numberOfPages, int currentPage)
+        {
+            if (numberOfPages <= 0 || currentPage > numberOfPages) return 0;
+
+            decimal progress = (decimal)currentPage / numberOfPages * 100;
+            return Math.Round(Math.Min(progress, 100), 2);
+        }
+
+        public string ShowReadingProgress(string author)
+        {
+            decimal averageProgress = 0;
+            var booksByAuthor = Books.Where(b => b.Author == author);
+
+            if (booksByAuthor.Any())
+            {
+                averageProgress = booksByAuthor.Average(b => b.ReadingProgress);
+            }
+
+            return averageProgress.ToString("F2") + "%";
+        }
+
+        public Dictionary<DateTime, int> GetBookCountByDate()
+        {
+            var bookCountByDate = Books
+                .GroupBy(b => b.Date.Date) 
+                .ToDictionary(g => g.Key, g => g.Count()); 
+
+            return bookCountByDate;
         }
     }
 }

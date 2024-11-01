@@ -12,5 +12,7 @@ namespace LibraryApp.Interfaces
         void AddBook(Book book);
         Book FindBookById(Guid id);
         bool RemoveBookById(Guid id);
+        string ShowReadingProgress(string author);
+        Dictionary<DateTime, int> GetBookCountByDate();
     }
 }

@@ -41,7 +41,9 @@ namespace LibraryApp.Services
             Console.WriteLine("1. Add a book");
             Console.WriteLine("2. Find a book by ID");
             Console.WriteLine("3. Delete a book by ID");
-            Console.WriteLine("4. Exit");
+            Console.WriteLine("4. Check average percentage read by author");
+            Console.WriteLine("5. Get book count by date");
+            Console.WriteLine("6. Exit");
         }
 
         public void NotifyInvalidNumber()

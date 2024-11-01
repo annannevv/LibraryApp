@@ -2,6 +2,7 @@
 using LibraryApp.Models;
 using LibraryApp.Services;
 using System;
+using System.Transactions;
 
 class Program
 {
@@ -22,7 +23,20 @@ class Program
                     Console.Write("Enter name: ");
                     string name = Console.ReadLine();
 
-                    library.AddBook(new Book(name)); 
+                    Console.Write("Enter author: ");
+                    string author = Console.ReadLine();
+
+                    Console.Write("Enter total number of pages:");
+                    if (Int32.TryParse(Console.ReadLine(), out int numberOfPages))
+                    {
+
+                        Console.Write("Enter your current page:");
+                        if (Int32.TryParse(Console.ReadLine(), out int currentPage))
+                        {
+                            library.AddBook(new Book(name, author, numberOfPages, currentPage));
+                        }
+                    }
+                    else logger.NotifyInvalidNumber();                   
                     break;
 
                 case "2":
@@ -31,7 +45,9 @@ class Program
                     {
                         var book = library.FindBookById(id);
                         if (book != null)
+                        {
                             Console.WriteLine($"Book: {book.Name}");
+                        }                          
                         else
                             logger.NotifyBookNotFound();
                     }
@@ -52,8 +68,19 @@ class Program
                         Console.WriteLine("Invalid ID. Please enter a valid GUID.");
                     }
                     break;
-
                 case "4":
+                    Console.Write("Enter author: ");
+                    string auth = Console.ReadLine();
+                    Console.WriteLine(library.ShowReadingProgress(auth));
+                    break;
+                case "5":
+                    var bookCountByDate = library.GetBookCountByDate();
+                    foreach (var entry in bookCountByDate)
+                    {
+                        Console.WriteLine($"Date: {entry.Key.ToShortDateString()}, Quantity: {entry.Value}");
+                    }
+                    break;
+                case "6":
                     return;
 
                 default:
