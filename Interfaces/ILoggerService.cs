@@ -8,10 +8,7 @@ namespace LibraryApp.Interfaces
 {
     internal interface ILoggerService
     {
-        void LogInfo(string message);
-        void NotifyBookAdded();
-        void NotifyBookExists();
-        void NotifyBookDeleted();
+        void Log(string message);
         void NotifyBookNotFound();
         void ShowMenu();
         void NotifyInvalidNumber();

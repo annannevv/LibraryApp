@@ -10,29 +10,14 @@ namespace LibraryApp.Services
 {
     internal class LoggerService : ILoggerService
     {
-        public void LogInfo(string message)
+        public void Log(string message)
         {
             Console.WriteLine($"{message}");
-        }
-
-        public void NotifyBookAdded()
-        {
-            Console.WriteLine($"Book added.");
-        }
-
-        public void NotifyBookDeleted()
-        {
-            Console.WriteLine($"Book deleted.");
         }
 
         public void NotifyBookNotFound()
         {
             Console.WriteLine($"Book not found.");
-        }
-
-        public void NotifyBookExists()
-        {
-            Console.WriteLine($"The book already exists.");
         }
 
         public void ShowMenu()

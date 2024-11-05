@@ -71,7 +71,7 @@ class Program
                 case "4":
                     Console.Write("Enter author: ");
                     string auth = Console.ReadLine();
-                    Console.WriteLine(library.ShowReadingProgress(auth));
+                    Console.WriteLine(library.GetReadingProgress(auth));
                     break;
                 case "5":
                     var bookCountByDate = library.GetBookCountByDate();

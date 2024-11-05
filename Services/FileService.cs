@@ -13,16 +13,16 @@ namespace LibraryApp.Services
         private const string FilePath = "books.json";
         private readonly ILoggerService _logger;
 
-        public FileService()
+        public FileService(ILoggerService logger)
         {
-            _logger = new LoggerService();
+            _logger = logger;
         }
 
         public void SaveToFile<T>(List<T> data)
         {
             var jsonData = JsonSerializer.Serialize(data);
             File.WriteAllText(FilePath, jsonData);
-            _logger.NotifyBookAdded();
+            _logger.Log("Book added.");
         }
 
         public List<T> LoadFromFile<T>()

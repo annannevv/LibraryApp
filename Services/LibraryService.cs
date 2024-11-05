@@ -11,12 +11,12 @@ namespace LibraryApp.Services
     internal class LibraryService : ILibraryService
     {
         private readonly ILoggerService _logger;
-        private readonly IFileService FileService;
+        private readonly IFileService _fileService;
         private List<Book> Books;
 
         public LibraryService()
         {
-            FileService = new FileService();
+            _fileService = new FileService(_logger);
             Books = LoadBooksFromFile();
         }
 
@@ -24,13 +24,18 @@ namespace LibraryApp.Services
         {
             if (Books.Any(b => b.Id == book.Id))
             {
-                _logger.NotifyBookExists();
+                _logger.Log("The book already exists.");
                 return;
             }
 
             book.ReadingProgress = CalculateReadingProgress(book.NumberOfPages, book.CurrentPage);
-            Books.Add(book);
-            FileService.SaveToFile(Books);
+            if (book.NumberOfPages >= book.CurrentPage)
+            {
+                Books.Add(book);
+                _fileService.SaveToFile(Books);
+            }
+            else _logger.Log("Invalid number of current page");
+            
         }
 
         public Book FindBookById(Guid id)
@@ -44,8 +49,8 @@ namespace LibraryApp.Services
             if (book != null)
             {
                 Books.Remove(book);
-                FileService.SaveToFile(Books);
-                _logger.NotifyBookDeleted();
+                _fileService.SaveToFile(Books);
+                _logger.Log("Book deleted.");
                 return true;
             }
 
@@ -55,7 +60,7 @@ namespace LibraryApp.Services
 
         private List<Book> LoadBooksFromFile()
         {
-            return FileService.LoadFromFile<Book>();
+            return _fileService.LoadFromFile<Book>();
         }
 
         private decimal CalculateReadingProgress(int numberOfPages, int currentPage)
@@ -66,7 +71,7 @@ namespace LibraryApp.Services
             return Math.Round(Math.Min(progress, 100), 2);
         }
 
-        public string ShowReadingProgress(string author)
+        public string GetReadingProgress(string author)
         {
             decimal averageProgress = 0;
             var booksByAuthor = Books.Where(b => b.Author == author);
