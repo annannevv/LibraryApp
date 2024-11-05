@@ -2,55 +2,89 @@
 using LibraryApp.Models;
 using LibraryApp.Services;
 using System;
+using System.Transactions;
 
 class Program
 {
     static void Main(string[] args)
     {
         ILibraryService library = new LibraryService();
+        ILoggerService logger = new LoggerService();
 
         while (true)
         {
-            Console.WriteLine("Select an action: ");
-            Console.WriteLine("1. Add a book");
-            Console.WriteLine("2. Find a book by ID");
-            Console.WriteLine("3. Delete a book by ID");
-            Console.WriteLine("4. Exit");
+            logger.ShowMenu();
 
             string choice = Console.ReadLine();
 
             switch (choice)
             {
                 case "1":
-                    Console.Write("Enter book ID: ");
-                    int id = int.Parse(Console.ReadLine());
-
                     Console.Write("Enter name: ");
                     string name = Console.ReadLine();
 
-                    library.AddBook(new Book(id, name));
+                    Console.Write("Enter author: ");
+                    string author = Console.ReadLine();
+
+                    Console.Write("Enter total number of pages:");
+                    if (Int32.TryParse(Console.ReadLine(), out int numberOfPages))
+                    {
+
+                        Console.Write("Enter your current page:");
+                        if (Int32.TryParse(Console.ReadLine(), out int currentPage))
+                        {
+                            library.AddBook(new Book(name, author, numberOfPages, currentPage));
+                        }
+                    }
+                    else logger.NotifyInvalidNumber();                   
                     break;
+
                 case "2":
                     Console.Write("Enter book ID: ");
-                    id = int.Parse(Console.ReadLine());
-
-                    var book = library.FindBookById(id);
-                    if (book != null)
-                        Console.WriteLine($"Book: {book.Name}");
+                    if (Guid.TryParse(Console.ReadLine(), out Guid id))
+                    {
+                        var book = library.FindBookById(id);
+                        if (book != null)
+                        {
+                            Console.WriteLine($"Book: {book.Name}");
+                        }                          
+                        else
+                            logger.NotifyBookNotFound();
+                    }
                     else
-                        Console.WriteLine("Not found.");
+                    {
+                        Console.WriteLine("Invalid ID. Please enter a valid GUID.");
+                    }
                     break;
+
                 case "3":
                     Console.Write("Enter the ID of the book to be deleted: ");
-                    id = int.Parse(Console.ReadLine());
-
-                    library.RemoveBookById(id);
+                    if (Guid.TryParse(Console.ReadLine(), out id))
+                    {
+                        library.RemoveBookById(id);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid ID. Please enter a valid GUID.");
+                    }
                     break;
                 case "4":
+                    Console.Write("Enter author: ");
+                    string auth = Console.ReadLine();
+                    Console.WriteLine(library.GetReadingProgress(auth));
+                    break;
+                case "5":
+                    var bookCountByDate = library.GetBookCountByDate();
+                    foreach (var entry in bookCountByDate)
+                    {
+                        Console.WriteLine($"Date: {entry.Key.ToShortDateString()}, Quantity: {entry.Value}");
+                    }
+                    break;
+                case "6":
                     return;
 
                 default:
-                    Console.WriteLine("Wrong choice.");
+                    logger.NotifyInvalidNumber();
                     break;
             }
         }

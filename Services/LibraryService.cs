@@ -10,11 +10,13 @@ namespace LibraryApp.Services
 {
     internal class LibraryService : ILibraryService
     {
-        private const string FilePath = "books.json";
+        private readonly ILoggerService _logger;
+        private readonly IFileService _fileService;
         private List<Book> Books;
 
         public LibraryService()
         {
+            _fileService = new FileService(_logger);
             Books = LoadBooksFromFile();
         }
 
@@ -22,47 +24,73 @@ namespace LibraryApp.Services
         {
             if (Books.Any(b => b.Id == book.Id))
             {
-                Console.WriteLine($"Book with ID {book.Id} already exists.");
+                _logger.Log("The book already exists.");
                 return;
             }
 
-            Books.Add(book);
-            SaveBooksToFile();
-            Console.WriteLine($"Book '{book.Name}' added.");
+            book.ReadingProgress = CalculateReadingProgress(book.NumberOfPages, book.CurrentPage);
+            if (book.NumberOfPages >= book.CurrentPage)
+            {
+                Books.Add(book);
+                _fileService.SaveToFile(Books);
+            }
+            else _logger.Log("Invalid number of current page");
+            
         }
 
-        public Book FindBookById(int id)
+        public Book FindBookById(Guid id)
         {
             return Books.FirstOrDefault(b => b.Id == id);
         }
 
-        public bool RemoveBookById(int id)
+        public bool RemoveBookById(Guid id)
         {
             var book = FindBookById(id);
             if (book != null)
             {
                 Books.Remove(book);
-                SaveBooksToFile();
-                Console.WriteLine($"Book ID {id} deleted.");
+                _fileService.SaveToFile(Books);
+                _logger.Log("Book deleted.");
                 return true;
             }
 
-            Console.WriteLine($"Book with ID {id} not found.");
+            _logger.NotifyBookNotFound();
             return false;
-        }
-
-        private void SaveBooksToFile()
-        {
-            var json = JsonSerializer.Serialize(Books);
-            File.WriteAllText(FilePath, json);
         }
 
         private List<Book> LoadBooksFromFile()
         {
-            if (!File.Exists(FilePath)) return new List<Book>();
+            return _fileService.LoadFromFile<Book>();
+        }
 
-            var json = File.ReadAllText(FilePath);
-            return JsonSerializer.Deserialize<List<Book>>(json) ?? new List<Book>();
+        private decimal CalculateReadingProgress(int numberOfPages, int currentPage)
+        {
+            if (numberOfPages <= 0 || currentPage > numberOfPages) return 0;
+
+            decimal progress = (decimal)currentPage / numberOfPages * 100;
+            return Math.Round(Math.Min(progress, 100), 2);
+        }
+
+        public string GetReadingProgress(string author)
+        {
+            decimal averageProgress = 0;
+            var booksByAuthor = Books.Where(b => b.Author == author);
+
+            if (booksByAuthor.Any())
+            {
+                averageProgress = booksByAuthor.Average(b => b.ReadingProgress);
+            }
+
+            return averageProgress.ToString("F2") + "%";
+        }
+
+        public Dictionary<DateTime, int> GetBookCountByDate()
+        {
+            var bookCountByDate = Books
+                .GroupBy(b => b.Date.Date) 
+                .ToDictionary(g => g.Key, g => g.Count()); 
+
+            return bookCountByDate;
         }
     }
 }

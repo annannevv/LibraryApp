@@ -10,7 +10,9 @@ namespace LibraryApp.Interfaces
     internal interface ILibraryService
     {
         void AddBook(Book book);
-        Book FindBookById(int id);
-        bool RemoveBookById(int id);
+        Book FindBookById(Guid id);
+        bool RemoveBookById(Guid id);
+        string GetReadingProgress(string author);
+        Dictionary<DateTime, int> GetBookCountByDate();
     }
 }
