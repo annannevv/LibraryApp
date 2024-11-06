@@ -9,10 +9,11 @@ namespace LibraryApp.Interfaces
 {
     internal interface ILibraryService
     {
-        void AddBook(Book book);
+        Task AddBook(Book book);
         Book FindBookById(Guid id);
-        bool RemoveBookById(Guid id);
+        Task<bool> RemoveBookById(Guid id);
         string GetReadingProgress(string author);
         Dictionary<DateTime, int> GetBookCountByDate();
+        Task InitializeAsync();
     }
 }

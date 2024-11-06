@@ -6,9 +6,10 @@ using System.Transactions;
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         ILibraryService library = new LibraryService();
+        await library.InitializeAsync();
         ILoggerService logger = new LoggerService();
 
         while (true)
