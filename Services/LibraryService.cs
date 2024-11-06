@@ -16,11 +16,17 @@ namespace LibraryApp.Services
 
         public LibraryService()
         {
+            _logger = new LoggerService();
             _fileService = new FileService(_logger);
-            Books = LoadBooksFromFile();
+            Books = new List<Book>();
         }
 
-        public void AddBook(Book book)
+        public async Task InitializeAsync()
+        {
+            Books = await LoadBooksFromFile();
+        }
+
+        public async Task AddBook(Book book)
         {
             if (Books.Any(b => b.Id == book.Id))
             {
@@ -32,7 +38,7 @@ namespace LibraryApp.Services
             if (book.NumberOfPages >= book.CurrentPage)
             {
                 Books.Add(book);
-                _fileService.SaveToFile(Books);
+                await _fileService.SaveToFile(Books);
             }
             else _logger.Log("Invalid number of current page");
             
@@ -43,13 +49,13 @@ namespace LibraryApp.Services
             return Books.FirstOrDefault(b => b.Id == id);
         }
 
-        public bool RemoveBookById(Guid id)
+        public async Task<bool> RemoveBookById(Guid id)
         {
             var book = FindBookById(id);
             if (book != null)
             {
                 Books.Remove(book);
-                _fileService.SaveToFile(Books);
+                await _fileService.SaveToFile(Books);
                 _logger.Log("Book deleted.");
                 return true;
             }
@@ -58,9 +64,9 @@ namespace LibraryApp.Services
             return false;
         }
 
-        private List<Book> LoadBooksFromFile()
+        private async Task<List<Book>> LoadBooksFromFile()
         {
-            return _fileService.LoadFromFile<Book>();
+            return await _fileService.LoadFromFile<Book>();
         }
 
         private decimal CalculateReadingProgress(int numberOfPages, int currentPage)
