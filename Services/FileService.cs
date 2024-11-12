@@ -18,14 +18,14 @@ namespace LibraryApp.Services
             _logger = logger;
         }
 
-        public async Task SaveToFile<T>(List<T> data)
+        public async Task SaveToFileAsync<T>(List<T> data)
         {
             var jsonData = JsonSerializer.Serialize(data);
             await File.WriteAllTextAsync(FilePath, jsonData);
             _logger.Log("Book added.");
         }
 
-        public async Task<List<T>> LoadFromFile<T>()
+        public async Task<List<T>> LoadFromFileAsync<T>()
         {
             if (!File.Exists(FilePath)) return new List<T>();
             var jsonData = await File.ReadAllTextAsync(FilePath);

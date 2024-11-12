@@ -8,7 +8,7 @@ namespace LibraryApp.Interfaces
 {
     internal interface IFileService
     {
-        Task SaveToFile<T>(List<T> data);
-        Task<List<T>> LoadFromFile<T>();
+        Task SaveToFileAsync<T>(List<T> data);
+        Task<List<T>> LoadFromFileAsync<T>();
     }
 }
